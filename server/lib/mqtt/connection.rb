@@ -8,20 +8,20 @@ module Mqtt
 
     def initialize
       @client = MQTT::Client.connect(
-        :host => ENV['MQTT_HOST'],
-        :port => ENV['MQTT_PORT']
+        host: ENV['MQTT_HOST'],
+        port: ENV['MQTT_PORT']
       )
       @client.get_packet('#') do |packet|
-        p packet # TODO handle incomming message
+        p packet # TODO: handle incomming message
       end
     end
 
     def disconnect
-      @client.disconnect()
+      @client.disconnect
     end
 
     def publish(topic, payload, retain = false)
-      @client.publish(topic, payload, retain = false)
+      @client.publish(topic, payload, retain)
     end
 
     def subscribe(topic)
