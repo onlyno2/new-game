@@ -1,0 +1,23 @@
+name: Server CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build docker-compose stack
+        run: docker-compose up -d
+      - name: Check rubocop
+        run: docker-compose exec server bundle exec rubocop
+      - name: Check rspec
+        run: docker-compose exec server bundle exec rspec
