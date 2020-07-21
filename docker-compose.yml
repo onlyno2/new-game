@@ -1,0 +1,64 @@
+version: '3'
+
+services: 
+  mqtt:
+    build: 
+      context: ./images/mqtt-broker
+      dockerfile: Dockerfile
+    ports: 
+      - 1883:1883
+      - 9001:9001
+    tty: true
+    restart: always
+    volumes: 
+      - ./images/mqtt-broker/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./data/mqtt/:/mosquitto/data/
+      - ./logs/mqtt/:/mosquitto/log/
+    networks: 
+      - app-network
+  postgres:
+    image: postgres:12-alpine
+    volumes: 
+      - ./data/postgres:/var/lib/postgresql/data
+    environment: 
+      - POSTGRES_USER=user
+      - POSTGRES_DB=gemu
+      - POSTGRES_PASSWORD=secret
+    networks: 
+      - app-network
+  server:
+    build:
+      context: ./images/server
+      dockerfile: Dockerfile
+    command: sh -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    ports: 
+      - 3001:3000
+    depends_on: 
+      - postgres
+    volumes: 
+      - ./server:/app
+      - bundler_gems:/usr/local/bundle/
+    networks: 
+      - app-network
+  frontend:
+    build: 
+      context: ./images/frontend
+      dockerfile: Dockerfile
+    ports: 
+      - 8080:8080
+    volumes: 
+      - ./frontend:/app
+      - /usr/src/app/node_modules
+    networks: 
+      - app-network
+    command: 'yarn serve'
+
+volumes: 
+  bundler_gems:
+
+networks:
+  app-network:
+    driver: bridge
+    
+    
+    
