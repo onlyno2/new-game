@@ -25,11 +25,10 @@ RUN apk add --update --no-cache \
 
 RUN gem install bundler
 
-RUN mkdir -p /app
+RUN mkdir /app
 WORKDIR /app
 
 ADD Gemfile ./
-ADD Gemfile.lock ./
 
 RUN bundle install
 

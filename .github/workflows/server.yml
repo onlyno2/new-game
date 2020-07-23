@@ -1,0 +1,51 @@
+name: Server CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+      - uses: actions/cache@v1
+        with:
+          id: bundle-cache
+          path: vendor/bundle
+          key: ${{ runner.os }}-gem-${{ hashFiles('**/server/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gem-
+      - name: Install libraries
+        run: |
+          sudo apt-get -yqq install libpq-dev
+          gem install bundler
+      - name: Bundle
+        run: |
+          cd server
+          bundle config set path vendor/bundle
+          bundle check || bundle install --jobs 4 --retry 3
+      - name: Check lint
+        run: |
+          cd server
+          bundle exec rubocop -a
+      - name: Run test
+        env:
+          DATABASE_NAME: gemu
+          DATABASE_USER: user
+          DATABASE_PASSWORD: secret
+          DATABASE_HOST: 127.0.0.1
+          DATABASE_PORT: 5432
+          RAILS_ENV: test
+        run: |
+          cd server
+          bundle exec rspec
