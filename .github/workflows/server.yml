@@ -15,12 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Setup ruby
-        uses: actions/setup-ruby@v1
+        uses: clupprich/ruby-build-action@master
         with:
           ruby-version: 2.6.5
       - uses: actions/cache@v1
         with:
-          id: bundle-cache
           path: vendor/bundle
           key: ${{ runner.os }}-gem-${{ hashFiles('**/server/Gemfile.lock') }}
           restore-keys: |
