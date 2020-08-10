@@ -8,7 +8,15 @@
 </template>
 
 <script>
-import Phaser from "phaser";
+import Phaser from 'phaser';
+var mqtt = require('mqtt');
+
+var settings = {
+  mqttServerUrl: '10.0.33.39',
+  port: 9001
+}
+var client = mqtt.connect('mqtt://' + settings.mqttServerUrl + ":" + settings.port, { clientId: 'web' });
+
 export default {
   data() {
     return {
@@ -17,25 +25,48 @@ export default {
         width: '100%',
         height: '100%',
         type: Phaser.AUTO,
+        physics: {
+          default: 'arcade',
+          arcade: {
+            debug: false
+          },
+        },
         scene: {
+          preload () {
+              this.load.image('ship', '../assets/ship.png');
+          },
           init() {
             this.cameras.main.setBackgroundColor('#24252A');
           },
           create() {
-            this.helloWorld = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY, 'Hello World', { font: '40px Arial', fill: '#ffffff' });
-            this.helloWorld.setOrigin(0.5);
+            let group = this.physics.add.group({
+                angularVelocity: 60,
+                bounceX: 1,
+                bounceY: 1,
+                collideWorldBounds: true,
+                dragX: 60,
+                dragY: 60
+            });
+            let ship = group.create(100, 200, 'ship');
+            client.subscribe('data/test');
+            client.on('message', (topic, message) => {
+              let data = JSON.parse(String.fromCharCode.apply(String, message));
+              console.log(data, data.x, data.y);
+              ship.setVelocity(data.x * 30, data.y * 30);
+            });
           },
-          update() {
-            this.helloWorld.angle += 1;
+          update: () => {
           },
         },
       },
     };
   },
+  created() {
+  },
   methods: {
     initializeGame() {
       this.initialize = true;
-    },
+    }
   },
 };
 </script>
