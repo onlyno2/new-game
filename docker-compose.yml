@@ -10,10 +10,10 @@ services:
       - 9001:9001
     tty: true
     restart: always
-    # volumes: 
-      # - ./images/mqtt-broker/mosquitto.conf:/mosquitto/config/mosquitto.conf
-      # - ./data/mqtt/:/mosquitto/data/
-      # - ./logs/mqtt/:/mosquitto/log/
+    volumes: 
+      - ./images/mqtt-broker/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    #   - ./data/mqtt/:/mosquitto/data/
+    #   - ./logs/mqtt/:/mosquitto/log/
     networks: 
       - app-network
   postgres:
