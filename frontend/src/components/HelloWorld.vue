@@ -33,7 +33,7 @@ export default {
         },
         scene: {
           preload () {
-              this.load.image('ship', '../assets/ship.png');
+              this.load.image('ship', 'ship.png');
           },
           init() {
             this.cameras.main.setBackgroundColor('#24252A');
